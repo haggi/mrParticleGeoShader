@@ -10,3 +10,8 @@
 *.lai
 *.la
 *.a
+
+# VC dir
+mrParticleGeoShader/vs2010/ipch/
+mrParticleGeoShader/vs2010/x64/
+*.opensdf
