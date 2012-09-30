@@ -1,0 +1,20 @@
+declare shader
+	geometry #: shortname outGeometry
+	"mrParticleGeoShader" (
+		integer	"geometryType",		#: default 0 enum "PolySprites:NativeParticles" shortname geometryType
+		scalar	"sizeMultiplier",	#: default 1.0 min 0.0001 softmax 20.0 shortname sizeMultiplier
+		scalar	"minPixelSize",		#: default 1.5 min 0.0 softmax 10.0 shortname minPixelSize
+		scalar	"maxPixelSize",		#: default 1000.0 min 0.0 softmax 10.0 shortname maxPixelSize
+		scalar	"density",			#: default 1.0 min 0.0 max 1.0 shortname density
+		integer	"frameOffset",		#: default 0 shortname frameOffset
+		scalar	"seqScale",			#: default 1.0 min 0.001 softmax 5.0 shortname seqScale
+		integer	"minSizeBehaviour",	#: default 0 enum "Clip:Resize" shortname minSizeBehaviour
+		scalar	"size",				#: default 5.0 min 0.00001 softmax 25.0 shortname size
+		scalar	"sizeVariation",	#: default .5 min 0.00001 softmax 2.0 shortname sizeVariation
+
+		array string "particleFiles", #: shortname particleFiles
+		scalar  "dummy" #: shortname dummy
+		)
+	version 1
+	apply geometry
+end declare
