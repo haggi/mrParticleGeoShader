@@ -163,6 +163,7 @@ copy $(OutDir)$(TargetName)$(TargetExt) C:\svn\maya\plugins\Output\mr3.10Release
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="../src/mrParticleGeoShader.cpp" />
+    <ClCompile Include="..\src\partioContainer.cpp" />
     <ClCompile Include="..\src\pystring.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -170,6 +171,7 @@ copy $(OutDir)$(TargetName)$(TargetExt) C:\svn\maya\plugins\Output\mr3.10Release
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="../src/mrParticleGeoShader.h" />
+    <ClInclude Include="..\src\partioContainer.h" />
     <ClInclude Include="..\src\pystring.h" />
     <ClInclude Include="..\src\utils.h" />
   </ItemGroup>

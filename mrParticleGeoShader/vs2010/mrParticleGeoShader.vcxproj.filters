@@ -21,6 +21,9 @@
     <ClCompile Include="..\src\pystring.cpp">
       <Filter>Header Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\partioContainer.cpp">
+      <Filter>Header Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="../src/mrParticleGeoShader.h">
@@ -30,6 +33,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\partioContainer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

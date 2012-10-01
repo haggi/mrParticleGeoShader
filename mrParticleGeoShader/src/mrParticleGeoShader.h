@@ -6,19 +6,8 @@
 #include "shader.h"
 #include "geoshader.h"
 
-class PartioContainer{
-public:
-	PartioContainer();
-	PartioContainer(std::string fileName);
-	~PartioContainer();
-	bool good();
-	bool assertAttribute(char *attrName, Partio::ParticleAttribute& attr);
+#define VERSION "0.01"
 
-	std::string cacheFileName;
-	Partio::ParticlesDataMutable* data;
-private:
-
-};
 struct mrParticleGeoShader_paras{
 	int			geometryType; // "PolySprites:NativeParticles" 
 	miScalar	sizeMultiplier; 

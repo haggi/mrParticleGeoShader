@@ -1,123 +1,12 @@
 #include "mrParticleGeoShader.h"
+#include "partioContainer.h"
 #include <stdlib.h>
-#include <Partio.h>
 #include "pystring.h"
-//#include "miaux.h"
 #include "utils.h"
 #include <sstream>
 
 
-PartioContainer::PartioContainer()
-{
-	data = NULL;
-}
 
-PartioContainer::PartioContainer(std::string fileName)
-{
-	this->data = NULL;
-
-	this->cacheFileName = fileName;
-	this->data = Partio::read(fileName.c_str());
-	if( this->data == NULL)
-	{
-		mi_error("data == NULL, unable to read file %d", fileName.c_str());
-		return;
-	}
-
-	mi_info("Number of particles %d", data->numParticles());
-	mi_info("Particle has %d attributes:", data->numAttributes());
-	for(int i=0;i<data->numAttributes();i++)
-	{
-		Partio::ParticleAttribute attr;
-		data->attributeInfo(i,attr);
-		mi_info("attribute %d name: %s", i, attr.name.c_str());
-	}
-}
-
-PartioContainer::~PartioContainer()
-{}
-
-bool PartioContainer::good()
-{
-	return (this->data != NULL);
-}
-
-
-bool PartioContainer::assertAttribute(char *attrName, Partio::ParticleAttribute& attr)
-{
-	if(!this->data->attributeInfo(attrName, attr))
-	{
-		mi_error("Attribute %s not found in particle file", attrName);
-		return false;
-	}
-
-	std::string an(attrName);
-	if( an == "position")
-	{
-		if( ((attr.type != Partio::FLOAT) &&  (attr.type != Partio::VECTOR)) || (attr.count != 3))
-		{
-			mi_error("Attribute data type is wrong.");
-			return false;
-		}
-	}
-	if( an == "velocity")
-	{
-		if( ((attr.type != Partio::FLOAT) &&  (attr.type != Partio::VECTOR)) || (attr.count != 3))
-		{
-			mi_error("Attribute data type is wrong.");
-			return false;
-		}
-	}
-	if( an == "id")
-	{
-		if( (attr.type != Partio::INT) || (attr.count != 1))
-		{
-			mi_error("Attribute data type is wrong.");
-			return false;
-		}
-	}
-	if( an == "rgbPP")
-	{}
-	if( an == "radiusPP")
-	{
-		if( (attr.type != Partio::FLOAT) || (attr.count != 1))
-		{
-			mi_error("Attribute data type is wrong.");
-			return false;
-		}
-	}
-
-	return true;
-}
-
-
-void readPartio( char *fileName )
-{
-	Partio::ParticlesDataMutable* data=Partio::read(fileName);
-	std::cout << "Number of particles " << data->numParticles() << std::endl;	
-
-	for(int i=0;i<data->numAttributes();i++)
-	{
-		Partio::ParticleAttribute attr;
-		data->attributeInfo(i,attr);
-		std::cout<<"attribute["<<i<<"] is "<<attr.name<<std::endl;
-	}
-
-	Partio::ParticleAttribute posAttr;
-	if(!data->attributeInfo("position",posAttr)
-	   || (posAttr.type != Partio::FLOAT && posAttr.type != Partio::VECTOR)
-	   || posAttr.count != 3){
-	   std::cerr<<"Failed to get proper position attribute"<<std::endl;
-	   return;
-	}
-	
-	float *pos;
-	for(int i=0;i<data->numParticles();i++)
-	{
-		pos = (float *)data->data<float>(posAttr,i);
-		mi_info("Position %f %f %f", pos[0], pos[1], pos[2]);
-	}
-}
 
 void makeit(miTag *result)
 {
@@ -535,40 +424,6 @@ miTag createMeshParticles(miState *state, mrParticleGeoShader_paras *paras, Part
    
 }
 
-// 
-//	possible file name patterns:
-//		maya nParticle cache: nodeNameNumber.ext	
-//
-std::string paddedFrameNumber( int frameNumber, int padding)
-{
-	std::string numberString = stringify(frameNumber);
-	size_t numberStringLen = numberString.length();
-	
-	if( numberStringLen <= padding)
-		return numberString;
-	
-	int zeroLen = padding - numberStringLen;
-	std::string zeroString = "";
-	for( int i = 0; i < zeroLen; i++)
-		zeroString += "0";
-
-	return zeroString + numberString;
-}
-
-
-std::string getCorrectFileName(miState *state, mrParticleGeoShader_paras *paras, std::string fileName)
-{
-	int frameNumber = state->camera->frame;
-	int frameOffset = *mi_eval_integer(&paras->frameOffset);
-	miScalar seqScale = *mi_eval_scalar(&paras->seqScale);
-	frameNumber += frameOffset;
-	frameNumber /= seqScale;
-	int numDigits = pystring::count(fileName, "#");
-	std::string paddedFrameString = paddedFrameNumber(frameNumber, numDigits);
-	std::string fnReplace = pystring::replace(fileName, "#", "<>");	
-	fnReplace = pystring::replace(fnReplace, "<>", paddedFrameString);	
-	return fnReplace;
-}
 
 extern "C" DLLEXPORT int mrParticleGeoShader_version()
 {
@@ -581,6 +436,8 @@ extern "C" DLLEXPORT miBoolean mrParticleGeoShader(
 	mrParticleGeoShader_paras   *paras)
 {
 	
+	mi_info("mrParticleGeoShader: Version %s", VERSION);
+
 	int			geometryType = *mi_eval_integer(&paras->geometryType);
 	miScalar	minPixelSize = *mi_eval_scalar(&paras->minPixelSize);
 	miScalar	maxPixelSize = *mi_eval_scalar(&paras->maxPixelSize);

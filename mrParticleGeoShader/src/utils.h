@@ -143,4 +143,35 @@ inline float linstep( miScalar min, miScalar max, miScalar value)
 		return 1.0f;
 	return newVal/dist;
 }
+
+inline std::string paddedFrameNumber( int frameNumber, int padding)
+{
+	std::string numberString = stringify(frameNumber);
+	size_t numberStringLen = numberString.length();
+	
+	if( numberStringLen <= padding)
+		return numberString;
+	
+	int zeroLen = padding - numberStringLen;
+	std::string zeroString = "";
+	for( int i = 0; i < zeroLen; i++)
+		zeroString += "0";
+
+	return zeroString + numberString;
+}
+
+
+inline std::string getCorrectFileName(miState *state, mrParticleGeoShader_paras *paras, std::string fileName)
+{
+	int frameNumber = state->camera->frame;
+	int frameOffset = *mi_eval_integer(&paras->frameOffset);
+	miScalar seqScale = *mi_eval_scalar(&paras->seqScale);
+	frameNumber += frameOffset;
+	frameNumber /= seqScale;
+	int numDigits = pystring::count(fileName, "#");
+	std::string paddedFrameString = paddedFrameNumber(frameNumber, numDigits);
+	std::string fnReplace = pystring::replace(fileName, "#", "<>");	
+	fnReplace = pystring::replace(fnReplace, "<>", paddedFrameString);	
+	return fnReplace;
+}
 #endif
