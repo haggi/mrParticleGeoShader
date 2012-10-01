@@ -6,10 +6,64 @@
 #include <sstream>
 
 
-
-
-void makeit(miTag *result)
+miObject *beginObject()
 {
+    miObject *obj = mi_api_object_begin(NULL);
+	obj->visible = miTRUE;
+	obj->shadow = 3;
+	obj->finalgather = 3;
+	obj->globillum = 3;
+	obj->reflection = 3;
+	obj->refraction = 3;
+	obj->caustic = 3;
+	obj->face = 'a';
+
+    mi_api_basis_list_clear();
+    mi_api_object_group_begin(0.0);
+
+	return obj;
+}
+
+miTag finishObject()
+{
+    miBoolean done = mi_api_object_group_end();
+	miTag resultTag = mi_api_object_end();
+    return resultTag;
+}
+
+
+miTag createNativeParticles(miState *state, mrParticleGeoShader_paras *paras, PartioContainer& pc)
+{
+	if( !pc.good())
+	{
+		mi_info("createNativeParticles: Invalid patioContainer");
+		return miNULLTAG;
+	}
+
+	Partio::ParticleAttribute posAttr;
+	if(!pc.assertAttribute("position", posAttr))
+	{
+		mi_info("createNativeParticles: partioContainer: no position.");
+		return miNULLTAG;
+	}
+
+	Partio::ParticleAttribute idAttr;
+	bool hasId = true;
+	if(!pc.assertAttribute("id", idAttr))
+		hasId = false;
+
+	Partio::ParticleAttribute radiusPPAttr;
+	bool hasRadiusPP = true;
+	if(!pc.assertAttribute("radiusPP", radiusPPAttr))
+		hasRadiusPP = false;
+
+	Partio::ParticleAttribute radiusRGBPPAttr;
+	bool hasRgbPP = true;
+	if(!pc.assertAttribute("rgbPP", radiusRGBPPAttr))
+		hasRgbPP = false;
+
+	mi_info("Creating native particles for cache file: %s", pc.cacheFileName.c_str());
+
 	// declare the map as a 3-dimensional map
 	mi_api_map_decl_dim ( 3 );
 
@@ -56,28 +110,27 @@ void makeit(miTag *result)
 
 	// begins the definition of the map, taking "particles" as the declaration name
 	mi_api_map_begin ( mi_mem_strdup("particles") );
-	int num_elements = 1000;
+
+	int num_elements = pc.data->numParticles();
 
 	for ( int i = 0 ; i < num_elements ; ++i ) 
 	{
-		//
-		// compute the position in x, y and z
-		//
-		miScalar x = srnd() * 10.0f;
-		miScalar y = srnd() * 10.0f;
-		miScalar z = srnd() * 10.0f;
+		
+		float pos[3];
+		pc.getPosition(i, pos);
 
 		// define the position of this element
-		mi_api_map_value ( miTYPE_SCALAR , &x );
-		mi_api_map_value ( miTYPE_SCALAR , &y );
-		mi_api_map_value ( miTYPE_SCALAR , &z );
+		mi_api_map_value ( miTYPE_SCALAR , &pos[0] );
+		mi_api_map_value ( miTYPE_SCALAR , &pos[1] );
+		mi_api_map_value ( miTYPE_SCALAR , &pos[2] );
 		mi_api_map_field_end ();
 
-		//
-		// compute the radius
-		miScalar radius = srnd() * 3.0f;
+		float radiusPP = 1.0f;
+		if( hasRadiusPP )
+			radiusPP = *pc.data->data<float>(radiusPPAttr, i);
+
 		// define the radius of this element
-		mi_api_map_value ( miTYPE_SCALAR , &radius );
+		mi_api_map_value ( miTYPE_SCALAR , &radiusPP );
 		mi_api_map_field_end ();
 
 		//
@@ -101,39 +154,7 @@ void makeit(miTag *result)
 	miTag map_tag = mi_api_map_end ( 0 );
 
 	miTag particleObjTag = mi_api_object_end();
-	miBoolean geoAddResult = mi_geoshader_add_result(result, particleObjTag);
-
-}
-
-miObject *beginObject()
-{
-    miObject *obj = mi_api_object_begin(NULL);
-	obj->visible = miTRUE;
-	obj->shadow = 3;
-	obj->finalgather = 3;
-	obj->globillum = 3;
-	obj->reflection = 3;
-	obj->refraction = 3;
-	obj->caustic = 3;
-	obj->face = 'a';
-
-    mi_api_basis_list_clear();
-    mi_api_object_group_begin(0.0);
-
-	return obj;
-}
-
-miTag finishObject()
-{
-    miBoolean done = mi_api_object_group_end();
-	miTag resultTag = mi_api_object_end();
-    return resultTag;
-}
-
-
-void createNativeParticles(miState *state, mrParticleGeoShader_paras *paras, PartioContainer& pc)
-{
-	mi_info("Creating native particles for cache file: %s", pc.cacheFileName.c_str());
+	return particleObjTag;
 }
 
 bool checkScreenSpace(miState *state, mrParticleGeoShader_paras *paras, miVector pos, miVector& bottomLeft, miVector& topRight)
@@ -225,12 +246,6 @@ miTag createMeshParticles(miState *state, mrParticleGeoShader_paras *paras, Part
 	bool hasVelocity = true;
 	if(!pc.assertAttribute("velocity", velocityAttr))
 		hasVelocity = false;
-
-	if( pc.data->numParticles() == 0 )
-	{
-		mi_error("No particles in container.");
-		return miNULLTAG;
-	}
 	
 	miObject *obj = beginObject();
 
@@ -465,8 +480,11 @@ extern "C" DLLEXPORT miBoolean mrParticleGeoShader(
 				miTag particleTag = createMeshParticles(state, paras, pc);
 				if( particleTag != miNULLTAG)
 					miBoolean done = mi_geoshader_add_result( result, particleTag);
-			}else
-				createNativeParticles(state, paras, pc);
+			}else{
+				miTag particleTag = createNativeParticles(state, paras, pc);
+				if( particleTag != miNULLTAG)
+					miBoolean done = mi_geoshader_add_result( result, particleTag);
+			}
 		}
 	}
 	return miTRUE;

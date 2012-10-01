@@ -17,11 +17,14 @@ PartioContainer::PartioContainer(std::string fileName)
 		mi_error("data == NULL, unable to read file %d", fileName.c_str());
 		return;
 	}
+	
 	if(data->numParticles() == 0)
 	{
 		mi_warning("No particles in cache file.");
+		this->data = NULL;
 		return;
 	}
+
 
 	mi_info("Number of particles %d", data->numParticles());
 	mi_info("Particle has %d attributes:", data->numAttributes());
@@ -31,6 +34,14 @@ PartioContainer::PartioContainer(std::string fileName)
 		data->attributeInfo(i,attr);
 		mi_info("attribute %d name: %s", i, attr.name.c_str());
 	}
+
+	// can have another name, 'position' in maya caches, what about other caches, need mapping.
+	if( !this->assertAttribute("position", positionAttr))
+	{
+		mi_warning("No position attr in cache file.");
+		this->data = NULL;
+	}
+
 }
 
 PartioContainer::~PartioContainer()
@@ -102,4 +113,13 @@ void PartioContainer::getAttributes(std::vector<std::string>& attributeNames)
 		data->attributeInfo(i,attr);
 		attributeNames.push_back(attr.name.c_str());
 	}
+}
+
+
+void PartioContainer::getPosition(int index, float *pos)
+{
+	float *fpos = (float *)this->data->data<float>(this->positionAttr, index);
+	pos[0] = fpos[0];
+	pos[1] = fpos[1];
+	pos[2] = fpos[2];
 }

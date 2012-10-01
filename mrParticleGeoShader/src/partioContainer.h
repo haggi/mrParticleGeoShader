@@ -12,10 +12,14 @@ public:
 	bool good();
 	bool assertAttribute(char *attrName, Partio::ParticleAttribute& attr);
 	void getAttributes(std::vector<std::string>& attributeNames);
+
+	void getPosition(int index, float* pos);
+
 	std::string cacheFileName;
 	Partio::ParticlesDataMutable* data;
 private:
 
+	Partio::ParticleAttribute positionAttr;
 };
 
 #endif
