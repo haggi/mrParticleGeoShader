@@ -34,6 +34,11 @@ miTag finishObject()
 
 miTag createNativeParticles(miState *state, mrParticleGeoShader_paras *paras, PartioContainer& pc)
 {
+	miBoolean useAllAttributes = *mi_eval_boolean(&paras->useAllAttributes);
+	int i_a = *mi_eval_integer(&paras->i_attributeNames);
+	int n_a = *mi_eval_integer(&paras->n_attributeNames);
+	miTag *attributeNames = mi_eval_tag(paras->attributeNames) + i_a;
+
 	if( !pc.good())
 	{
 		mi_info("createNativeParticles: Invalid patioContainer");
@@ -106,7 +111,7 @@ miTag createNativeParticles(miState *state, mrParticleGeoShader_paras *paras, Pa
 	// char *mapped_name : name of the mapped field ("extension" in this case)
 
 	// maps the "radius" field to the "extension" field of this map
-	mi_api_map_obj_field ( mi_mem_strdup("radius") , mi_mem_strdup("extension") );	
+	mi_api_map_obj_field( mi_mem_strdup("radius") , mi_mem_strdup("extension") );	
 
 	// begins the definition of the map, taking "particles" as the declaration name
 	mi_api_map_begin ( mi_mem_strdup("particles") );
@@ -136,9 +141,10 @@ miTag createNativeParticles(miState *state, mrParticleGeoShader_paras *paras, Pa
 		//
 		// compute the color in r, g and b
 		//
-		miScalar r = srnd();
-		miScalar g = srnd();
-		miScalar b = srnd();
+		miScalar r = rnd();
+		miScalar g = rnd();
+		miScalar b = rnd();
+		mi_info("Color %f %f %f", r, g, b);
 
 		// define the color of this element
 		mi_api_map_value ( miTYPE_SCALAR , &r );
@@ -459,13 +465,6 @@ extern "C" DLLEXPORT miBoolean mrParticleGeoShader(
 	int i_m = *mi_eval_integer(&paras->i_particleFiles);
 	int n_m = *mi_eval_integer(&paras->n_particleFiles);
 	miTag *particleFiles = mi_eval_tag(paras->particleFiles) + i_m;
-
-	int mag0 = 1179603508;
-	int mag = 1179603512;
-	char *c0 = (char *)&mag0;
-	char *c = (char *)&mag;
-	std::cout << "Val0: " << c0[0] << " " << c0[1] << " " << c0[2] << " " << c0[3] << "\n";
-	std::cout << "Val1: " << c[0] << " " << c[1] << " " << c[2]  << " " << c[3] << "\n";
 
 	for(int i = 0; i < n_m; i++)
 	{

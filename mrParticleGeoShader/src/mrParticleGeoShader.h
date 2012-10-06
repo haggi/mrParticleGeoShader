@@ -20,6 +20,12 @@ struct mrParticleGeoShader_paras{
 	miScalar	size;
 	miScalar	sizeVariation;
 
+	miBoolean	useAllAttributes;
+
+	int			i_attributeNames;
+	int			n_attributeNames;
+	miTag		attributeNames[1];
+
 	int			i_particleFiles;
 	int			n_particleFiles;
 	miTag		particleFiles[1];

@@ -12,6 +12,11 @@ declare shader
 		scalar	"size",				#: default 5.0 min 0.00001 softmax 25.0 shortname size
 		scalar	"sizeVariation",	#: default .5 min 0.00001 softmax 2.0 shortname sizeVariation
 
+		# native particles
+		boolean "useAllAttributes", #: default true shortname useAllAttributes
+		array string "attributeNames", #: shortname attributeNames
+
+
 		array string "particleFiles", #: shortname particleFiles
 		scalar  "dummy" #: shortname dummy
 		)
