@@ -6,7 +6,7 @@
 #include "shader.h"
 #include "geoshader.h"
 
-#define VERSION "0.01"
+#define VERSION "0.02"
 
 struct mrParticleGeoShader_paras{
 	int			geometryType; // "PolySprites:NativeParticles" 
@@ -19,6 +19,8 @@ struct mrParticleGeoShader_paras{
 	int			minSizeBehaviour;
 	miScalar	size;
 	miScalar	sizeVariation;
+
+	int			multiParticles;
 
 	miBoolean	useAllAttributes;
 

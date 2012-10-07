@@ -133,7 +133,7 @@ miTag createNativeParticles(miState *state, mrParticleGeoShader_paras *paras, Pa
 		float radiusPP = 1.0f;
 		if( hasRadiusPP )
 			radiusPP = *pc.data->data<float>(radiusPPAttr, i);
-
+		radiusPP = rnd() * 0.3;
 		// define the radius of this element
 		mi_api_map_value ( miTYPE_SCALAR , &radiusPP );
 		mi_api_map_field_end ();
@@ -144,8 +144,7 @@ miTag createNativeParticles(miState *state, mrParticleGeoShader_paras *paras, Pa
 		miScalar r = rnd();
 		miScalar g = rnd();
 		miScalar b = rnd();
-		mi_info("Color %f %f %f", r, g, b);
-
+		
 		// define the color of this element
 		mi_api_map_value ( miTYPE_SCALAR , &r );
 		mi_api_map_value ( miTYPE_SCALAR , &g );
@@ -160,6 +159,39 @@ miTag createNativeParticles(miState *state, mrParticleGeoShader_paras *paras, Pa
 	miTag map_tag = mi_api_map_end ( 0 );
 
 	miTag particleObjTag = mi_api_object_end();
+
+	miEchoOptions options;
+	memset(&options, 0, sizeof(options));
+	options.ascii_output = true;
+	options.compressed_output = false;
+	options.dont_echo = false;
+	
+	mi_info("Writing to geodump.mi file.");
+	const char *mode = "w";
+	FILE *fh = fopen("C:/daten/3dprojects/Maya2013/scenes/geodump.mi", mode);
+	//mi_geoshader_echo_tag(fh, particleObjTag, &options);
+	fclose(fh);
+
+	mi::shader::Access_map  map(map_tag);
+	mi::shader::Map_status	    status;
+	mi::shader::Map_declaration map_declaration(map, &status);
+	mi::shader::Map_field_id field_id = map_declaration->get_field_id(mi_mem_strdup("color"), &status);
+	if (!status.is_ok())
+	{
+		mi_error("problems getting field_id for color");
+		return particleObjTag;
+	}
+	mi_info("Field id %d", field_id);
+	mi::shader::Map_field_type f_type;
+	miUint f_dimension;
+	bool f_is_global;
+	status = map_declaration->get_field_info(field_id, f_type, f_dimension, f_is_global);
+	if (!status.is_ok())
+	{
+		mi_error("problems get_field_info");
+		return particleObjTag;
+	}
+	mi_info("Field type %d is global %d", f_type.type(), f_is_global);
 	return particleObjTag;
 }
 
