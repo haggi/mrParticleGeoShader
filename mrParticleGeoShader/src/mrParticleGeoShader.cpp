@@ -83,7 +83,7 @@ miTag createNativeParticles(miState *state, mrParticleGeoShader_paras *paras, Pa
 	miParameter *extension_field = mi_api_map_field_decl (
 	miTYPE_SCALAR , mi_mem_strdup("extension") , 0 , miFALSE );
 
-	// add the "color" field as an array of 3 scalars
+	// add the "color" field as an array of 1 color
 	miParameter *color_field = mi_api_map_field_decl (
 	miTYPE_SCALAR , mi_mem_strdup("color") , 3 , miFALSE );
 
@@ -144,8 +144,12 @@ miTag createNativeParticles(miState *state, mrParticleGeoShader_paras *paras, Pa
 		miScalar r = rnd();
 		miScalar g = rnd();
 		miScalar b = rnd();
-		
+		miColor col;
+		col.r = r;
+		col.g = g;
+		col.b = b;
 		// define the color of this element
+		//mi_api_map_value ( miTYPE_COLOR , &col );
 		mi_api_map_value ( miTYPE_SCALAR , &r );
 		mi_api_map_value ( miTYPE_SCALAR , &g );
 		mi_api_map_value ( miTYPE_SCALAR , &b );
